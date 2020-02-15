@@ -30,7 +30,6 @@ public class Location
             if (xCoord == otherLoc.xCoord && yCoord == otherLoc.yCoord) {
                 return true;
             }  else    
-        /** Если не равны - возвращаем false **/
         return false;
     }
     
@@ -38,9 +37,9 @@ public class Location
     метод hashCode() возвращает для любого объекта 32-битное число типа int
     Если в нашей программе будут сравниваться объекты, гораздо проще сделать это по хэш-коду, и только если они равны по hashCode() — переходить к сравнению по equals().**/
 	public int hashCode() {
-        int result = 7;
-        result = 31 * result + xCoord;
-        result = 31 * result + yCoord;
+        int result = 69;
+        result = 7 * result + xCoord;
+        result = 7 * result + yCoord;
         return result;
     }
     
