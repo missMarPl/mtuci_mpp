@@ -23,4 +23,25 @@ public class Location
     {
         this(0, 0);
     }
+    
+    /** Обеспечить реализацию метода equals  **/
+    public boolean equals(Location otherLoc) {
+        
+            if (xCoord == otherLoc.xCoord && yCoord == otherLoc.yCoord) {
+                return true;
+            }  else    
+        /** Если не равны - возвращаем false **/
+        return false;
+    }
+    
+	/**  Обеспечить реализацию метода hashcode  
+    метод hashCode() возвращает для любого объекта 32-битное число типа int
+    Если в нашей программе будут сравниваться объекты, гораздо проще сделать это по хэш-коду, и только если они равны по hashCode() — переходить к сравнению по equals().**/
+	public int hashCode() {
+        int result = 7;
+        result = 31 * result + xCoord;
+        result = 31 * result + yCoord;
+        return result;
+    }
+    
 }
