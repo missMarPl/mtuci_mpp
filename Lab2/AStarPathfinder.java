@@ -50,7 +50,7 @@ public class AStarPathfinder
                 finalWaypoint = best;
                 foundPath = true;
             }
-            //System.out.printf("best : %d  -  %d \n", best.getLocation().xCoord, best.getLocation().xCoord);
+            
             // Add/update all neighbors of the current best location.  This is
             // equivalent to trying all "next steps" from this location.
             takeNextStep(best, state);
@@ -59,7 +59,7 @@ public class AStarPathfinder
             // list.
             state.closeWaypoint(best.getLocation());
         }
-        System.out.printf("finalWaypoint : %d  -  %d \n", finalWaypoint.getLocation().xCoord, finalWaypoint.getLocation().xCoord);
+        
         return finalWaypoint;
     }
 
@@ -89,10 +89,8 @@ public class AStarPathfinder
                 
                 // If this location happens to already be in the "closed" set
                 // then continue on with the next location.
-                if (state.isLocationClosed(nextLoc)) {
-                System.out.println("Closed, skip!");
+                if (state.isLocationClosed(nextLoc))
                     continue;
-                    }
 
                 // Make a waypoint for this "next location."
                 
