@@ -41,7 +41,6 @@ public class Crawler {
             System.exit(1);
 		}
 		
-		
 		// Создаём пару из начального адреса (конструктор принимает string на входе)
         UrlDepthPair currentUDP = new UrlDepthPair(args[0], 0);
 		
@@ -50,22 +49,27 @@ public class Crawler {
 		
 		// Дальше крутим цикл, пока не дойдём до максимальной глубины
 		for (int currDepth = 0; currDepth <= maxDepth; currDepth++) {
-			System.out.println("currDepth = "+currDepth);
+			//DEBUG
+			//System.out.println("currDepth = "+currDepth);
+			
 			//сколько в листе ожидания
 			int pendingLeft = pendingURLs.size();
-			System.out.println("At Depth "+currDepth+" pendingLeft = "+pendingLeft);
+			
+			//DEBUG
+			//System.out.println("At Depth "+currDepth+" pendingLeft = "+pendingLeft);
+			
 			// Перебираем все урлы в листе ожидания 
 			for (int i = 0; i < pendingLeft; i++) {
-				System.out.println("visitedURLs = "+visitedURLs.size());
 				
-				/*try {
+				//DEBUG
+				/*System.out.println("visitedURLs = "+visitedURLs.size());	
+					try {
 					java.util.concurrent.TimeUnit.SECONDS.sleep(10);
 					} catch (InterruptedException e) {
 					e.printStackTrace();
 				}*/
 				
-				
-				
+				//берём урл из листа ожидания
 				currentUDP = pendingURLs.pop();
 				
 				//открываем сокет
@@ -74,7 +78,9 @@ public class Crawler {
 					mySocket = new Socket(currentUDP.getWebHost(), WEBPORT);
 				}
 				catch (UnknownHostException e) {
-					System.err.println("UnknownHostException: " + e.getMessage());
+					System.out.println("UnknownHostException: " + e.getMessage());
+					visitedURLs.add(new UrlDepthPair(currentUDP.getWebHost()+"UNKNOWN", currentUDP.getDepth()));
+					continue;
 				}
 				catch (IOException ioe) {
 					System.err.println("IOException: " + ioe.getMessage());	
@@ -102,7 +108,10 @@ public class Crawler {
 				//Ругается BadRequest'ом на getDocPath на нулевом уровне? Ок, вроде починила.				
 				PrintWriter myWriter = new PrintWriter(out, true);
 				String docPath = currentUDP.getDepth() == 0 ? "/" : currentUDP.getDocPath();
-				System.out.println("docPath: " + docPath);
+				
+				//DEBUG
+				//System.out.println("docPath: " + docPath);
+				
 				myWriter.println("GET " + docPath + " HTTP/1.1");
 				myWriter.println("Host: " + currentUDP.getWebHost());
 				myWriter.println("Connection: close");
@@ -120,47 +129,54 @@ public class Crawler {
 				InputStreamReader myStreamReader = new InputStreamReader(in);
 				BufferedReader myReader = new BufferedReader(myStreamReader);
 				
-				int debugNum = 0;
+				//DEBUG
+				//int debugNum = 0;
 				
 				while (true) {
 					String line = null;
-					debugNum++;
+					
+					//DEBUG
+					//debugNum++;
 					//System.out.println("debugNum = "+debugNum);
 					//	System.out.println("visitedURLs = "+visitedURLs.size());
 					
 					//каждую считанную строку кладём в line 
 					try {
 						line = myReader.readLine();
+						//DEBUG
 						//	System.out.println("line = "+line);
 					}
 					catch (IOException ioe) {
-						System.err.println("IOException:" + ioe.getMessage());
-						
+						System.err.println("IOException:" + ioe.getMessage());	
 					}
 					
 					if (line == null) break;
 					//индексы для начала и конца ссылки
-					int Idx = 0;
+					//int Idx = 0;
 					int beginIdx = 0;
 					int endIdx = 0;
 					
 					while (true) {					
-						Idx = line.indexOf(LINK_PREFIX, Idx);
+						beginIdx = line.indexOf(LINK_PREFIX, beginIdx);
 						//	System.out.println("line in = "+line);
 						//бежим по строке, пока она не кончится
 						//	System.out.println("Idx = "+Idx);
-						if (Idx == -1) {
+						if (beginIdx == -1) {
 							//System.out.println("Idx -1 = "+Idx);
 							break;
 						}
 						
-						Idx = Idx+LINK_PREFIX.length();
-						beginIdx = Idx;
-						endIdx = line.indexOf(END_URL, Idx);
-						Idx = endIdx;
+						beginIdx = beginIdx+LINK_PREFIX.length();
+						//beginIdx = Idx;
+						endIdx = line.indexOf(END_URL, beginIdx);
+						//Idx = endIdx;
+						
+						//DEBUG
 						//System.out.println("Indexes = "+Idx+" : "+beginIdx+": "+endIdx);
+						
 						//нашли ссылку - кладём в лист ожидания с глубиной +1
 						String newURL ="";
+						
 						//если конец строки наступил раньше, чем кончилась ссылка
 						try {
 							newURL = line.substring(beginIdx, endIdx);
@@ -168,6 +184,7 @@ public class Crawler {
 							System.out.println("OutOfBounds");
 							break;
 						}
+						//DEBUG
 						//System.out.println("newURL = "+newURL);
 						
 						if (newURL.startsWith(UrlDepthPair.URL_PREFIX)) {
@@ -180,7 +197,6 @@ public class Crawler {
 				// отработанную страницу кладём в список посещённых
 				visitedURLs.add(currentUDP);
 				
-				
 				// закрываем сокет!
 				try {
 					mySocket.close();
@@ -191,10 +207,28 @@ public class Crawler {
 			}
 		}
 		
-		//когда закончили с перебором - вывод всех посещённых адресов
-		while (!visitedURLs.isEmpty()) {
-		UrlDepthPair resultURL = visitedURLs.pop();
-		System.out.println(resultURL.toString());
-		}
+		Crawler cr = new Crawler();
+		cr.getSites(visitedURLs);
+		
 	}
+	
+	public void getSites(LinkedList<UrlDepthPair> visited) {
+		//когда закончили с перебором - вывод всех посещённых адресов и запись их в файл
+		
+		try(FileWriter writer = new FileWriter("sites.txt", false))
+        {
+			// запись всей строки
+			
+			while (!visited.isEmpty()) {
+				String resultURL = visited.pop().toString();
+				System.out.println(resultURL);
+				writer.write(resultURL);
+			}             
+            writer.flush();
+		}
+        catch(IOException ex){
+            System.out.println(ex.getMessage());
+		} 
+		
+	}	
 }

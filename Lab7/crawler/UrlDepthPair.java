@@ -39,37 +39,18 @@ public class UrlDepthPair {
 	//Выдать инфу о паре в одну красивую строчку
     @Override
     public String toString() {
-        return "url: " + url + " search depth: " + depth;
+        return "URL: " + url + "\nDEPTH: " + depth + "\n~~~";
 	}
 	
     public String getDocPath() {
-	System.out.println("path "+url.getPath());
+		//DEBUG
+		//System.out.println("path "+url.getPath());
         return url.getPath();
 	}
 	
 	public String getWebHost() {
-	System.out.println("host "+url.getHost());
+		//DEBUG
+		//System.out.println("host "+url.getHost());
         return url.getHost();
 	}
-	/*   public String getWebHost() {
-		
-        int idx = URL_PREFIX.length();
-        int idx2 = url.indexOf("/", idx);
-		
-        try {
-		if (isUrlValid()) {
-		return url.substring(idx, idx2);
-		}
-        } catch (IndexOutOfBoundsException iob) {
-		System.out.println("wrapped url");
-        }
-        return null;
-	} */
-	
-	
-	
-	/*    public boolean isUrlValid() {
-        return url.startsWith(URL_PREFIX);
-	}*/
-	
 }
