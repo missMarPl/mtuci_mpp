@@ -41,11 +41,11 @@ public class Location
 		метод hashCode() возвращает для любого объекта 32-битное число типа int
 	Если в нашей программе будут сравниваться объекты, гораздо проще сделать это по хэш-коду, и только если они равны по hashCode() — переходить к сравнению по equals().**/
     @Override	public int hashCode() {
-        int result = 19;  // random prime number
+        int result = (xCoord+""+yCoord).hashCode(); 
 		
         // Use another prime to combine
-        result = 53 * result + ((Integer)xCoord).hashCode();
-        result = 53 * result + ((Integer)yCoord).hashCode();
+        result = 53 * result + ((Integer)xCoord);
+        result = 53 * result + ((Integer)yCoord);
 		
         return result;
 	}
